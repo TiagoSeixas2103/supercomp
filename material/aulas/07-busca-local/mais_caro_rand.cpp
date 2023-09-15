@@ -32,11 +32,6 @@ int main() {
     for (int i = 0; i < N; i++) {
         indices[i] = i;
     }
-
-    // Faz a coordenacao indireta
-/*     sort(indices.begin(), indices.end(), [&itens](int a, int b) {
-        return compara_valor(itens[a], itens[b]);
-    }); */
     
     // Pega os mais caros enquanto cabe na mochila
     int T = 0;
@@ -64,9 +59,45 @@ int main() {
             indicesChecados.remove(i);
         }
         i = v;
-        
-        
     }
+
+    int iTira = 0;
+    int iCompara = 0;
+    double pesoCompara = -1;
+    for (int i = 0; i < resposta.size(); i++) {
+        iCompara = resposta[i];
+        if (itens[indices[iCompara]].peso > pesoCompara) {
+            pesoCompara =  itens[indices[iCompara]].peso;
+            iTira = iCompara;
+        }
+    }
+
+    vector<int> novaResposta(N);
+    novaResposta = resposta;
+    novaResposta.erase(remove(novaResposta.begin(), novaResposta.end(), iTira), novaResposta.end());
+    double novoValor = valor - itens[indices[iTira]].valor;
+    double novoPeso = peso -  - itens[indices[iTira]].peso;
+    int T2 = novaResposta.size();
+
+    for (int i = 0; i < N; i++) {
+        bool iNaLista = (find(novaResposta.begin(), novaResposta.end(), i) != novaResposta.end());
+        if (i != iTira && iNaLista == false) {
+            if (novoPeso + itens[indices[i]].peso < W) {
+                novaResposta[T] = indices[i];
+                novoPeso += itens[indices[i]].peso;
+                novoValor += itens[indices[i]].valor;
+                T2++;
+            }
+        }
+    }
+
+    if (novoValor > valor) {
+        resposta = novaResposta;
+        valor = novoValor;
+        peso = novoPeso;
+        T = T2;
+    }
+
 
     // Simplificando vetor de resposta
     resposta.erase(resposta.begin() + T, resposta.end());
