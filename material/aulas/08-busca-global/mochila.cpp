@@ -13,58 +13,71 @@ struct Item{
 };
 
 void carregaDados(int& N, int& W, vector<Item>& itens);
-int mochila(int N, int W, vector<Item> itens, vector<int>& melhor_mochila);
-int max(int a, int b);
+int mochila(int W, vector<Item> itens,vector<Item>& usados, vector<Item>& melhor_mochila);
 
 int main() {
 
     int N;
     int W;
     vector<Item> itens;
-    vector<int> melhor_mochila;
+    vector<Item> melhor_mochila;
+    vector<Item> usados;
 
     // Leitura dos Dados
     carregaDados(N, W, itens);
 
-    cout << "Valor: " << mochila(N, W, itens, melhor_mochila) <<endl;
-    sort(melhor_mochila.begin(), melhor_mochila.end());
-    melhor_mochila.erase(unique(melhor_mochila.begin(), melhor_mochila.end()), melhor_mochila.end());
+    cout << "Valor: " << mochila(W, itens, usados, melhor_mochila) <<endl;
+    //sort(melhor_mochila.begin(), melhor_mochila.end());
+    //.erase(unique(melhor_mochila.begin(), melhor_mochila.end()), melhor_mochila.end());
 
     cout << "Mochila: ";
-    for (const int& i : melhor_mochila) {
-        cout << i << " ";
+    for (const Item& i : melhor_mochila) {
+        cout << i.id << " ";
     }
     cout << endl;
 
     return 0;
 }
 
-int mochila(int N, int W, vector<Item> itens, vector<int>& melhor_mochila) {
-    if (N==0 || W == 0) {
+int mochila(int W, vector<Item> itens, vector<Item>& usados, vector<Item>& melhor_mochila) {
+    double sem_i = 0.0;
+    double com_i = 0.0;
+    double v = 0.0;
+    double p = 0.0;
+
+    vector<Item> itens2 = itens;
+
+    if (itens.size()==0 || W == 0) {
         return 0;
     }
-    int sem_i = 0;
-    int com_i = 0;
-    
-    if (itens[N-1].peso > W){
-        melhor_mochila.erase(remove(melhor_mochila.begin(), melhor_mochila.end(), itens[N-1].id), melhor_mochila.end());
-        sem_i = mochila(N-1, W, itens, melhor_mochila);
-        return sem_i;
-    }
-    else{
-        sem_i = mochila(N-1, W, itens, melhor_mochila);
-        com_i = mochila(N-1, W - itens[N - 1].peso, itens, melhor_mochila);
-        if (itens[N-1].valor + com_i > sem_i) {
-            melhor_mochila.push_back(itens[N-1].id);
-            return itens[N-1].valor + com_i;
-        }
-        else {
-            melhor_mochila.erase(remove(melhor_mochila.begin(), melhor_mochila.end(), itens[N-1].id), melhor_mochila.end());
-            return sem_i;
-        }
+
+    if (itens[0].peso <= W) {
+        usados.push_back(itens[0]);
+        v = itens[0].valor;
+        p = itens[0].peso;
+        itens.erase(itens.begin());
+        com_i = mochila(W-p, itens, usados, melhor_mochila);
     }
 
-    return 0;
+    itens2.erase(itens2.begin());
+    sem_i = mochila(W, itens2, usados, melhor_mochila);
+
+    double valor_atual = 0.0;
+    for (auto& elemento_atual : usados) {
+        valor_atual += elemento_atual.valor;
+    }
+
+    double melhor_valor = 0.0;
+    for (auto& elemento_atual : melhor_mochila) {
+        melhor_valor += elemento_atual.valor;
+    }
+
+    if (valor_atual > melhor_valor) {
+        melhor_mochila = usados;
+    }
+
+    usados.clear();
+    return max(sem_i, v+com_i);
 }
 
 void carregaDados(int& N, int& W, vector<Item>& itens) {
