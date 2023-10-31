@@ -18,18 +18,24 @@ double funcao2() {
 
 int main() {
     double res_func1, res_func2;
+    float time = omp_get_wtime();
 
     #pragma omp parallel
     {
         #pragma omp master 
         {
             #pragma omp task
+            {
                 res_func1 = funcao1();
+            }
             #pragma omp task
+            {
                 res_func2 = funcao2();
+            }
         }
         
     }
-
+    time = omp_get_wtime() - time;
+    cout << "Tempo: " << time << "\n";
     cout << res_func1 << " " << res_func2 << "\n";
 }

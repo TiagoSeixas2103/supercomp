@@ -1,5 +1,5 @@
-//g++ -g -Wall -fopenmp -o pi_recursivo pi_recursivo.cpp
-// ./pi_recursivo
+//g++ -g -Wall -fopenmp -o pi_recursivo_task pi_recursivo_task.cpp
+// ./pi_recursivo_task
 #include <omp.h>
 #include <iostream>
 #include <iomanip>
@@ -18,8 +18,17 @@ void pi_r(long Nstart, long Nfinish, double step) {
         }
     } else {
         iblk = Nfinish-Nstart;
-        pi_r(Nstart,         Nfinish-iblk/2,step);
-        pi_r(Nfinish-iblk/2, Nfinish,       step);
+        double sum1, sum2;
+        #pragma omp parallel
+        {
+            #pragma omp master
+            {
+                #pragma omp task
+                pi_r(Nstart,         Nfinish-iblk/2,step);
+                #pragma omp task
+                pi_r(Nfinish-iblk/2, Nfinish,       step);
+            }
+        }
     }
 }
 
@@ -29,11 +38,7 @@ int main () {
     double init_time, final_time;
     step = 1.0/(double) num_steps;
     init_time = omp_get_wtime();
-    #pragma omp parallel
-    {
-        #pragma omp single
-        pi_r(0, num_steps, step);
-    }
+    pi_r(0, num_steps, step);
     pi = step * sum;
     final_time = omp_get_wtime() - init_time;
 

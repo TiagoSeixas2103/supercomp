@@ -1,5 +1,5 @@
 // g++ -g projeto1.cpp -o projeto1
-// ./projeto1
+// ./projeto1 < grafo.txt
 
 #include <iostream>
 #include <algorithm>
@@ -23,16 +23,16 @@ int main() {
     cliqueMaxima = EncontrarCliqueMaxima(grafo, numVertices);
 
     cout << "Clique máxima encontrada: [";
-
+    
     int i = 0;
     for (const int& element : cliqueMaxima) {
-        cout << "'" << element << "'";
+        cout << "'" << element + 1 << "'";
         if (i < cliqueMaxima.size() - 1) {
             cout << ", ";
             i++;
         }
     }
-
+    
     cout << "]" << endl;
 
     return 0;
@@ -43,7 +43,8 @@ list<int> EncontrarCliqueMaxima(vector<vector<int>> grafo, int numVertices) {
     list<int> candidatos;
 
     for (int i = 0; i < numVertices; i++) {
-        candidatos.push_back(i);        
+        candidatos.push_back(i);  
+
     }
 
     while (candidatos.size() > 0) {
@@ -76,9 +77,10 @@ list<int> EncontrarCliqueMaxima(vector<vector<int>> grafo, int numVertices) {
                 if (adjacenteATodos) {
                     novosCandidatos.push_back(u);
                 }
-            }  
+            } 
 
-            candidatos = novosCandidatos;          
+            candidatos = novosCandidatos;
+
         }
     }
 

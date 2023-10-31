@@ -1,5 +1,5 @@
-//g++ -g -Wall -fopenmp -o pi_recursivo pi_recursivo.cpp
-// ./pi_recursivo
+//g++ -g -Wall -fopenmp -o pi_recursivo_for pi_recursivo_for.cpp
+// ./pi_recursivo_for
 #include <omp.h>
 #include <iostream>
 #include <iomanip>
@@ -12,6 +12,7 @@ double sum = 0;
 void pi_r(long Nstart, long Nfinish, double step) {
     long i,iblk;
     if (Nfinish-Nstart < MIN_BLK){
+        #pragma omp parallel for  reduction(+:sum)
         for (i = Nstart; i < Nfinish; i++){
             double x = (i+0.5)*step;
             sum += 4.0/(1.0+x*x); 
