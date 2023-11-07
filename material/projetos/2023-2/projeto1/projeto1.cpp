@@ -1,15 +1,16 @@
 // g++ -g projeto1.cpp -o projeto1
-// ./projeto1 < grafo.txt
+// ./projeto1
 
 #include <iostream>
 #include <algorithm>
 #include <list>
 #include <fstream>
+#include <vector>
 
 using namespace std;
 
-list<int> EncontrarCliqueMaxima(vector<vector<int>> grafo, int numVertices);
-//vector<vector<int>> LerGrafo(const string& nomeArquivo, int& numVertices);
+void Recursao(vector<vector<int>>& grafo, list<int>& clique, list<int>& candidatos, list<int>& cliqueMaxima);
+list<int> EncontrarCliqueMaxima(vector<vector<int>>& grafo, int numVertices);
 vector<vector<int>> LerGrafo(int& numVertices);
 
 int main() {
@@ -23,7 +24,7 @@ int main() {
     cliqueMaxima = EncontrarCliqueMaxima(grafo, numVertices);
 
     cout << "Clique máxima encontrada: [";
-    
+
     int i = 0;
     for (const int& element : cliqueMaxima) {
         cout << "'" << element + 1 << "'";
@@ -32,57 +33,47 @@ int main() {
             i++;
         }
     }
-    
+
     cout << "]" << endl;
 
     return 0;
 }
 
-list<int> EncontrarCliqueMaxima(vector<vector<int>> grafo, int numVertices) {
-    list<int> cliqueMaxima;
-    list<int> candidatos;
-
-    for (int i = 0; i < numVertices; i++) {
-        candidatos.push_back(i);  
-
+void Recursao(vector<vector<int>>& grafo, list<int>& clique, list<int>& candidatos, list<int>& cliqueMaxima) {
+    if (candidatos.empty() && cliqueMaxima.size() < clique.size()) {
+        cliqueMaxima = clique;
+        return;
     }
 
-    while (candidatos.size() > 0) {
-        int v = candidatos.back();
-        candidatos.pop_back();
+    list<int> candidatosCopia = candidatos;
+    for (int u : candidatosCopia) {
+        list<int> novos_candidatos;
 
-        bool podeAdicionar = true;
-
-        for (const int& u : cliqueMaxima) {
-            if (grafo[u][v] == 0) {
-                podeAdicionar = false;
-                break;
+        for (int c : candidatos) {
+            if (grafo[u][c] == 1) {
+                novos_candidatos.push_back(c);
             }
         }
 
-        if (podeAdicionar) {
-            cliqueMaxima.push_back(v);
-            list<int> novosCandidatos;
+        clique.push_back(u);
+        Recursao(grafo, clique, novos_candidatos, cliqueMaxima);
+        clique.pop_back();
 
-            for (const int& u : candidatos) {
-                bool adjacenteATodos = true;
-
-                for (const int& c : cliqueMaxima) {
-                    if (grafo[u][c] == 0) {
-                        adjacenteATodos = false;
-                        break;
-                    }
-                }
-
-                if (adjacenteATodos) {
-                    novosCandidatos.push_back(u);
-                }
-            } 
-
-            candidatos = novosCandidatos;
-
-        }
+        candidatos.remove(u);
     }
+
+}
+
+list<int> EncontrarCliqueMaxima(vector<vector<int>>& grafo, int numVertices) {
+    list<int> clique;
+    list<int> candidatos;
+    list<int> cliqueMaxima; 
+
+    for (int i = 0; i < numVertices; i++) {
+        candidatos.push_back(i);
+    }
+
+    Recursao(grafo, clique, candidatos, cliqueMaxima);
 
     return cliqueMaxima;
 }
